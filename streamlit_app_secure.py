@@ -37,7 +37,6 @@ def check_streamlit_secrets():
     required_secrets = [
         "OPENAI_API_KEY",
         "PERPLEXITY_API_KEY", 
-        "GEMINI_API_KEY",
         "GOOGLE_SHEETS_SPREADSHEET_ID",
         "GOOGLE_SERVICE_ACCOUNT_CREDENTIALS"
     ]
@@ -47,9 +46,22 @@ def check_streamlit_secrets():
         if secret not in st.secrets or not st.secrets[secret]:
             missing_secrets.append(secret)
     
+    # Check if we have at least 2 LLM agents configured
+    llm_agents_configured = 0
+    if st.secrets.get('OPENAI_API_KEY') and st.secrets.get('OPENAI_API_KEY') != "":
+        llm_agents_configured += 1
+    if st.secrets.get('PERPLEXITY_API_KEY') and st.secrets.get('PERPLEXITY_API_KEY') != "":
+        llm_agents_configured += 1
+    if st.secrets.get('GEMINI_API_KEY') and st.secrets.get('GEMINI_API_KEY') != "":
+        llm_agents_configured += 1
+    
+    if llm_agents_configured < 2:
+        missing_secrets.append("At least 2 LLM API keys required")
+    
     return {
         "all_configured": len(missing_secrets) == 0,
-        "missing_secrets": missing_secrets
+        "missing_secrets": missing_secrets,
+        "llm_agents_configured": llm_agents_configured
     }
 
 def create_config_from_secrets():
@@ -507,9 +519,13 @@ def main():
         **Required Secrets:**
         - `OPENAI_API_KEY`: Your OpenAI API key
         - `PERPLEXITY_API_KEY`: Your Perplexity API key  
-        - `GEMINI_API_KEY`: Your Google Gemini API key
         - `GOOGLE_SHEETS_SPREADSHEET_ID`: Your Google Sheets spreadsheet ID
         - `GOOGLE_SERVICE_ACCOUNT_CREDENTIALS`: Your Google service account JSON credentials
+        
+        **Optional Secrets:**
+        - `GEMINI_API_KEY`: Your Google Gemini API key (for 3rd LLM agent)
+        
+        **Note:** You need at least 2 LLM API keys for the system to work.
         """)
         return
     
