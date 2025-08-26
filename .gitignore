@@ -88,8 +88,11 @@ docker-compose.yml
 Dockerfile
 .dockerignore
 
-# Streamlit
-.streamlit/
+# Streamlit Secrets (exclude real secrets, keep config)
+.streamlit/secrets.toml
+.streamlit/secrets.*.toml
+!.streamlit/config.toml
+!.streamlit/secrets.toml.example
 
 # Jupyter
 .ipynb_checkpoints
