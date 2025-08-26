@@ -102,14 +102,21 @@ class EnhancedBrandMonitoringWorkflow:
             total_agents += 1
             try:
                 agent_config = self.config.llm_configs[agent_name]
+                logger.debug(f"Agent '{agent_name}' config type: {type(agent_config)}")
+                logger.debug(f"Agent '{agent_name}' config: {agent_config}")
+                
                 # Convert LLMConfig to dictionary if needed
                 if hasattr(agent_config, 'model_dump'):
+                    logger.debug(f"Using model_dump() for {agent_name}")
                     agent_config_dict = agent_config.model_dump()
                 elif isinstance(agent_config, dict):
+                    logger.debug(f"Using dict directly for {agent_name}")
                     agent_config_dict = agent_config
                 else:
+                    logger.debug(f"Using __dict__ fallback for {agent_name}")
                     agent_config_dict = agent_config.__dict__ if hasattr(agent_config, '__dict__') else {}
                 
+                logger.debug(f"Final config_dict for {agent_name}: {agent_config_dict}")
                 agent = factory_func(agent_name, agent_config_dict)
                 
                 # Test health check for agents that support it

@@ -338,6 +338,12 @@ def create_gemini_agent(name: str = "gemini", config: Dict[str, Any] = None) -> 
         max_tokens = config.get("max_tokens", 1000)
         temperature = config.get("temperature", 0.1)
         timeout = config.get("timeout", 30)
+        
+        # Ensure all values are primitive types, not objects
+        if hasattr(api_key, 'model_dump'):
+            api_key = getattr(api_key, 'api_key', str(api_key))
+        if hasattr(model, 'model_dump'):
+            model = getattr(model, 'model', str(model))
     else:
         # Fallback to environment variables
         api_key = settings.gemini_api_key

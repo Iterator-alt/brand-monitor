@@ -234,6 +234,14 @@ def create_openai_agent(name: str = "openai", config: Dict[str, Any] = None) -> 
         max_tokens = config.get("max_tokens", 1000)
         temperature = config.get("temperature", 0.1)
         timeout = config.get("timeout", 30)
+        
+        # Ensure all values are primitive types, not objects
+        if hasattr(api_key, 'model_dump'):
+            logger.warning(f"api_key is an object, converting: {type(api_key)}")
+            api_key = getattr(api_key, 'api_key', str(api_key))
+        if hasattr(model, 'model_dump'):
+            logger.warning(f"model is an object, converting: {type(model)}")
+            model = getattr(model, 'model', str(model))
     else:
         logger.warning(f"Config is not a dict, type: {type(config)}, falling back to settings")
         # Fallback to environment variables
