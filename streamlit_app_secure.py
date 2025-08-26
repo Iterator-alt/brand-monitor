@@ -203,13 +203,27 @@ def save_credentials_from_secrets():
         try:
             # Parse the JSON string and save to file
             credentials_data = json.loads(credentials_json)
+            
+            # Fix escaped newlines in private_key
+            if 'private_key' in credentials_data:
+                private_key = credentials_data['private_key']
+                # Replace escaped newlines with actual newlines
+                private_key = private_key.replace('\\n', '\n')
+                credentials_data['private_key'] = private_key
+            
+            # Save with proper formatting
             with open('credentials.json', 'w') as f:
                 json.dump(credentials_data, f, indent=2)
+            
+            st.success("✅ Google credentials saved successfully!")
             return True
         except Exception as e:
-            st.error(f"Failed to save credentials: {str(e)}")
+            st.error(f"❌ Failed to save credentials: {str(e)}")
+            st.info("💡 Please check that your GOOGLE_SERVICE_ACCOUNT_CREDENTIALS is valid JSON")
             return False
-    return False
+    else:
+        st.warning("⚠️ GOOGLE_SERVICE_ACCOUNT_CREDENTIALS not found in secrets")
+        return False
 
 def initialize_system():
     """Initialize the brand monitoring system."""
@@ -220,9 +234,10 @@ def initialize_system():
             f.write(config_content)
         
         # Save credentials
-        if not save_credentials_from_secrets():
-            st.error("Failed to save Google service account credentials")
-            return None
+        credentials_saved = save_credentials_from_secrets()
+        if not credentials_saved:
+            st.warning("⚠️ Google Sheets credentials not configured properly")
+            st.info("📊 The system will work without Google Sheets storage - results will show in the interface only")
         
         # Initialize API
         api = EnhancedBrandMonitoringAPI('config.yaml')

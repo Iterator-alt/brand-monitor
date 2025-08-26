@@ -199,7 +199,7 @@ class Settings(BaseSettings):
     security: SecurityConfig = Field(default_factory=SecurityConfig)
     
     # LLM Configurations - now supports all 3 models
-    llm_configs: Dict[str, LLMConfig] = Field(default_factory=dict)
+    llm_configs: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
     
     # Backward compatibility for Stage 1
     enable_ranking_detection: bool = True

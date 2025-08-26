@@ -218,8 +218,13 @@ def create_openai_agent(name: str = "openai", config: Dict[str, Any] = None) -> 
         Configured OpenAI agent
     """
     from src.config.settings import get_settings
+    from src.utils.logger import get_logger
     
+    logger = get_logger(__name__)
     settings = get_settings()
+    
+    logger.debug(f"Creating OpenAI agent with config type: {type(config)}")
+    logger.debug(f"Config content: {config}")
     
     # Handle both dict config and individual parameters for backward compatibility
     if isinstance(config, dict):
@@ -230,6 +235,7 @@ def create_openai_agent(name: str = "openai", config: Dict[str, Any] = None) -> 
         temperature = config.get("temperature", 0.1)
         timeout = config.get("timeout", 30)
     else:
+        logger.warning(f"Config is not a dict, type: {type(config)}, falling back to settings")
         # Fallback to environment variables
         api_key = settings.openai_api_key
         model = "gpt-4"
@@ -240,6 +246,8 @@ def create_openai_agent(name: str = "openai", config: Dict[str, Any] = None) -> 
     # Use environment variable if config doesn't have api_key
     if not api_key:
         api_key = settings.openai_api_key
+    
+    logger.debug(f"Creating LLMConfig with api_key type: {type(api_key)}")
     
     llm_config = LLMConfig(
         name=name,
